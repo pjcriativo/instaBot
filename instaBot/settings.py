@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-_1##&#q51u5rmi@^#&#ch(dk^b#n^r!y!4=#y6s&=-0o(-1#0e
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['https://instabot-bg40.onrender.com', '127.0.0.1:8000', '127.0.0.1']
 
 
 # Application definition
