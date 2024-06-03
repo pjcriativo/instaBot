@@ -5,7 +5,6 @@ import openai
 import time
 import datetime
 from PIL import Image, ImageDraw, ImageFont
-from django.views.decorators.csrf import csrf_token
 
 
 # Definição do formulário
@@ -68,7 +67,6 @@ def criar_imagem_com_texto(largura, altura, cor_fundo, nome_arquivo, texto=None)
     return nome_arquivo
 
 
-@csrf_token 
 def bot_view(request):
     if request.method == 'POST':
         form = BotForm(request.POST)
@@ -96,16 +94,21 @@ def bot_view(request):
                         try:
                             cl.photo_upload(imagem, legenda)
                             fotos_postadas += 1
+                            
+                            
                         except Exception as e:
-                            return render(request, 'painel_web/bot_form.html', {'form': form, 'error': f"Erro ao compartilhar a foto: {e}", 'fotos_postadas': fotos_postadas})
+                            return render(request, 'painel_web/bot_form.html', {'form': form, 'error': f"Erro ao compartilhar a foto: {e}", 'fotos_postadas': fotos_postadas})\
+                        
+                        # render(request, 'painel_web/bot_form.html', {'form': form, 'message': f"Fotos postadas: {fotos_postadas}", 'fotos_postadas': fotos_postadas})
 
-                        time.sleep(intervalo_tempo)
+                        if(intervalo_tempo):
+                            time.sleep(intervalo_tempo)
+                        else:
+                            time.sleep(300)
+            except KeyboardInterrupt:# Permite que o loop seja interrompido manualmente
+                pass                 
 
-            except KeyboardInterrupt:
-                # Permite que o loop seja interrompido manualmente
-                pass
-
-            return render(request, 'painel_web/bot_form.html', {'form': form, 'message': f"Fotos postadas: {fotos_postadas}", 'fotos_postadas': fotos_postadas})
+            
     else:
         form = BotForm()
     return render(request, 'painel_web/bot_form.html', {'form': form})
