@@ -5,6 +5,8 @@ import openai
 import time
 import datetime
 from PIL import Image, ImageDraw, ImageFont
+from django.views.decorators.csrf import csrf_protect
+
 
 # Definição do formulário
 class BotForm(forms.Form):
@@ -65,6 +67,8 @@ def criar_imagem_com_texto(largura, altura, cor_fundo, nome_arquivo, texto=None)
     imagem.save(nome_arquivo)
     return nome_arquivo
 
+
+@csrf_protect
 def bot_view(request):
     if request.method == 'POST':
         form = BotForm(request.POST)
