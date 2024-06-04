@@ -1,6 +1,7 @@
-from django.urls import path
-from painel_web import views
+from django.contrib import admin
+from django.urls import include, path
 
 urlpatterns = [
-    path('', views.bot_view, name="bot"),
+    path('admin/', admin.site.urls),
+    path('', include('painel_web.urls')),  # Inclui as URLs do aplicativo
 ]

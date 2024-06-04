@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+        }
+        .navbar {
+            width: 200px;
+            background-color: #343a40;
+            color: white;
+            padding: 15px;
+            height: calc(100vh - 50px); /* Adjust height to account for top navbar */
+            box-sizing: border-box;
+            position: fixed;
+            top: 50px; /* Adjusted to fit under the top navbar */
+            left: 0;
+        }
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            display: block;
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #495057;
+            text-align: center;
+            font-weight: bold;
+            border-radius: 5px;
+            transition: background-color 0.3s, transform 0.3s;
+            font-size: 16px;
+        }
+        .navbar a:hover {
+            background-color: #6c757d;
+            transform: scale(1.05);
+        }
+        .top-navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: #343a40;
+            color: #f59393;
+            padding: 10px;
+            text-align: center;
+            box-sizing: border-box;
+            z-index: 1000;
+            font-size: 20px;
+            font-weight: bold;
+            box-shadow: 0 4px 2px -2px gray;
+        }
+        .content {
+            margin-top: 50px;
+            margin-left: 200px;
+            padding: 20px;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            width: calc(100% - 200px);
+        }
+        .floating-box {
+            width: 150px;
+            height: 150px;
+            margin: 20px;
+            padding: 20px;
+            color: white;
+            font-size: 18px;
+            text-align: center;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .floating-box:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+        .instagram-box {
+            background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+        }
+        .facebook-box {
+            background-color: #3b5998;
+        }
+        .linkedin-box {
+            background-color: #0077b5;
+        }
+        .coming-soon-box {
+            background: linear-gradient(45deg, #6a11cb, #2575fc);
+        }
+    </style>
+</head>
+<body>
+    <div class="top-navbar">
+        Template
+    </div>
+    <div class="navbar">
+        <a href="#">ProfitAI</a>
+        <a href="{% url 'bot' %}">Instagram</a> 
+        <a href="#">Facebook Posts</a>
+        <a href="#">LinkedIn Posts</a>
+    </div>
+    <div class="content">
+        <a href="{% url 'bot' %}">
+            <div class="floating-box instagram-box">Instagram</div>
+        </a>
+        <div class="floating-box facebook-box">Facebook</div>
+        <div class="floating-box linkedin-box">LinkedIn</div>
+        <div class="floating-box coming-soon-box">Em Breve</div>
+        <div class="floating-box coming-soon-box">Em Breve</div>
+        <div class="floating-box coming-soon-box">Em Breve</div>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
