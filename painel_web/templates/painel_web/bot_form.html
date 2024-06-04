@@ -105,11 +105,6 @@
             {% endfor %}
         </ul>
         {% endif %}
-        {% if foto_postada_com_sucesso %}
-        <div class="alert alert-success" role="alert">
-            Foto postada com sucesso!
-        </div>
-        {% endif %}
         <form action="" method="post">
             {% csrf_token %}
             <div class="form-row">
@@ -137,15 +132,6 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="agente">Agente:</label>
-                    <select class="form-control" id="agente" name="agente">
-                        <option value="cristao">Cristão</option>
-                        <option value="vendedor">Vendedor</option>
-                        <option value="lider">Líder</option>
-                        <option value="senador">Senador</option>
-                    </select>
-                </div>
-                <div class="form-group">
                     <label for="intervalo_tempo">Intervalo de tempo (minutos):</label>
                     <select class="form-control" id="intervalo_tempo" name="intervalo_tempo">
                         <option value="5" {% if form.intervalo_tempo.value == "5" %}selected{% endif %}>5</option>
@@ -157,9 +143,8 @@
                     </select>
                 </div>
             </div>
-            <button
-            type="submit" class="btn btn-start">Start</button>
-            <button type="submit" class="btn btn-stop">Stop</button>
+            <button type="submit" name="start_bot" class="btn btn-start">Start</button>
+            <button type="submit" name="stop_bot" class="btn btn-stop">Stop</button>
         </form>
     </div>
 </body>
