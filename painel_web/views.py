@@ -1,27 +1,30 @@
-from django import forms
+import threading
+import time
 from django.shortcuts import render
 from instagrapi import Client
 import openai
-import time
-import datetime
 from PIL import Image, ImageDraw, ImageFont
+from .forms import BotForm
 
+# Definição das variáveis globais
+bot_running = False
+bot_thread = None
+fotos_postadas = 0
 
-# Definição do formulário
-class BotForm(forms.Form):
-    username = forms.CharField(label='Username', max_length=100)
-    password = forms.CharField(label='Password', widget=forms.PasswordInput)
-    ideias = forms.CharField(label='Ideias (separadas por vírgula)', max_length=200)
-    openai_key = forms.CharField(label='OpenAI API Key', max_length=100)
-    gpt_model = forms.ChoiceField(label='Modelo GPT', choices=[('gpt-3.5-turbo', 'gpt-3.5-turbo'), ('gpt-4', 'gpt-4')])
-    intervalo_tempo = forms.ChoiceField(label='Intervalo de tempo (minutos)', choices=[('5', '5'), ('10', '10'), ('15', '15'), ('20', '20'), ('25', '25'), ('30', '30'), ('35', '35'), ('40', '40'), ('45', '45'), ('50', '50'), ('55', '55'), ('60', '60')])
+def home_view(request):
+    return render(request, 'painel_web/home.html')
 
 def gerar_legenda(ideia, openai_key, gpt_model):
+    with open('painel_web/prompts.txt', 'r') as file:
+        prompts = dict(line.strip().split(':', 1) for line in file.readlines())
+    
+    prompt = prompts.get('cristao', "Você é do Instagram, você adora compartilhar conteúdo com seus seguidores")
+    
     openai.api_key = openai_key
     response = openai.ChatCompletion.create(
         model=gpt_model,
         messages=[
-            {"role": "system", "content": "Você é cristão do Instagram, você adora compartilhar a palavra de Deus"},
+            {"role": "system", "content": prompt},
             {"role": "user", "content": f"Crie uma frase sobre {ideia}"}
         ]
     )
@@ -66,30 +69,24 @@ def criar_imagem_com_texto(largura, altura, cor_fundo, nome_arquivo, texto=None)
     imagem.save(nome_arquivo)
     return nome_arquivo
 
+def postar_fotos(username, password, ideias, openai_key, gpt_model, intervalo_tempo):
+    global fotos_postadas, bot_running
 
-def bot_view(request):
-    if request.method == 'POST':
-        form = BotForm(request.POST)
-        if form.is_valid():
-            username = form.cleaned_data['username']
-            password = form.cleaned_data['password']
-            ideias = form.cleaned_data['ideias'].split(',')
-            openai_key = form.cleaned_data['openai_key']
-            gpt_model = form.cleaned_data['gpt_model']
-            intervalo_tempo = int(form.cleaned_data['intervalo_tempo']) * 60  # Convertendo para segundos
+    cl = Client()
+    try:
+        cl.login(username, password)
+    except Exception as e:
+        print(f"Erro ao fazer login: {e}")
+        return False  # Login failed
 
-            cl = Client()
-            try:
-                cl.login(username, password)
-            except Exception as e:
-                return render(request, 'painel_web/bot_form.html', {'form': form, 'error': f"Erro ao fazer login: {e}"})
+    first_post_successful = False
 
-            fotos_postadas = 0
-            try:
-                while True:
-                    for ideia in ideias:
-                        legenda = gerar_legenda(ideia.strip(), openai_key, gpt_model)
-                        imagem = criar_imagem_com_texto(800, 600, (0, 0, 0), "imagem_com_texto.png", legenda)
+    while bot_running:
+        for ideia in ideias:
+            if not bot_running:
+                break
+            legenda = gerar_legenda(ideia.strip(), openai_key, gpt_model)
+            imagem = criar_imagem_com_texto(800, 600, (0, 0, 0), "imagem_com_texto.png", legenda)
 
                         try:
                             cl.photo_upload(imagem, legenda)
@@ -109,6 +106,63 @@ def bot_view(request):
                 pass                 
 
             
+            try:
+                cl.photo_upload(imagem, caption=legenda)
+                fotos_postadas += 1
+                print(f"Foto postada com sucesso: {legenda}")
+                if not first_post_successful:
+                    first_post_successful = True
+            except Exception as e:
+                print(f"Erro ao compartilhar a foto: {e}")
+            
+            time.sleep(intervalo_tempo)
+
+    return first_post_successful
+
+def iniciar_bot(username, password, ideias, openai_key, gpt_model, intervalo_tempo):
+    global bot_running, bot_thread
+
+    if not bot_running:
+        bot_running = True
+        bot_thread = threading.Thread(target=postar_fotos, args=(username, password, ideias, openai_key, gpt_model, intervalo_tempo))
+        bot_thread.start()
+        return True
+    return False
+
+def parar_bot():
+    global bot_running
+    bot_running = False
+    print("Bot desligado.")
+
+def bot_view(request):
+    if request.method == 'POST':
+        if 'start_bot' in request.POST:
+            form = BotForm(request.POST)
+            if form.is_valid():
+                username = form.cleaned_data.get('username', '') 
+                password = form.cleaned_data.get('password', '')  
+                ideias = form.cleaned_data.get('ideias', '').split(',')
+                openai_key = form.cleaned_data.get('openai_key', '')  
+                gpt_model = form.cleaned_data.get('gpt_model', '')  
+                intervalo_tempo_minutos = int(form.cleaned_data.get('intervalo_tempo', 5))  
+                intervalo_tempo_minutos = max(5, min(intervalo_tempo_minutos, 30))  
+                intervalo_tempo = intervalo_tempo_minutos * 60 
+
+                if iniciar_bot(username, password, ideias, openai_key, gpt_model, intervalo_tempo):
+                    return render(request, 'painel_web/bot_form.html', {'form': form, 'message': "Foto postada"})
+                else:
+                    return render(request, 'painel_web/bot_form.html', {'form': form, 'message': "Erro ao iniciar o bot. Verifique suas credenciais."})
+
+        elif 'stop_bot' in request.POST:
+            parar_bot()
+            return render(request, 'painel_web/bot_form.html', {'form': BotForm(), 'message': "Bot desligado com sucesso!"})
     else:
-        form = BotForm()
+        form = BotForm(initial={ 
+            'username': '', 
+            'password': '', 
+            'ideias': '',  
+            'openai_key': '',  
+            'gpt_model': '',  
+            'intervalo_tempo': 5, 
+        })
     return render(request, 'painel_web/bot_form.html', {'form': form})

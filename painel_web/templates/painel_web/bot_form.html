@@ -72,6 +72,14 @@
             font-weight: bold;
             margin-top: 20px;
         }
+        ul.mensagens-sucesso {
+            list-style-type: none;
+            padding: 0;
+            text-align: center;
+        }
+        ul.mensagens-sucesso li {
+            color: green;
+        }
     </style>
 </head>
 <body>
@@ -89,6 +97,13 @@
         {% endif %}
         {% if fotos_postadas %}
         <p class="fotos-postadas">Fotos postadas: {{ fotos_postadas }}</p>
+        {% endif %}
+        {% if mensagens_sucesso %}
+        <ul class="mensagens-sucesso">
+            {% for mensagem in mensagens_sucesso %}
+                <li>{{ mensagem }}</li>
+            {% endfor %}
+        </ul>
         {% endif %}
         <form action="" method="post">
             {% csrf_token %}
@@ -128,8 +143,8 @@
                     </select>
                 </div>
             </div>
-            <button type="submit" class="btn btn-start">Start</button>
-            <button type="submit" class="btn btn-stop">Stop</button>
+            <button type="submit" name="start_bot" class="btn btn-start">Start</button>
+            <button type="submit" name="stop_bot" class="btn btn-stop">Stop</button>
         </form>
     </div>
 </body>
