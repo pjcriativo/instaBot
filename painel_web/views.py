@@ -5,7 +5,11 @@ from instagrapi import Client
 import openai
 from PIL import Image, ImageDraw, ImageFont
 from .forms import BotForm
- 
+
+# Definição das variáveis globais
+bot_running = False
+bot_thread = None
+fotos_postadas = 0
 
 def home_view(request):
     return render(request, 'painel_web/home.html')
@@ -127,7 +131,7 @@ def bot_view(request):
                 intervalo_tempo = intervalo_tempo_minutos * 60 
 
                 if iniciar_bot(username, password, ideias, openai_key, gpt_model, intervalo_tempo):
-                    return render(request, 'painel_web/bot_form.html', {'form': form, 'message': "Bot iniciado. Aguarde a postagem da primeira foto para confirmar."})
+                    return render(request, 'painel_web/bot_form.html', {'form': form, 'message': "Foto postada"})
                 else:
                     return render(request, 'painel_web/bot_form.html', {'form': form, 'message': "Erro ao iniciar o bot. Verifique suas credenciais."})
 
