@@ -88,6 +88,24 @@ def postar_fotos(username, password, ideias, openai_key, gpt_model, intervalo_te
             legenda = gerar_legenda(ideia.strip(), openai_key, gpt_model)
             imagem = criar_imagem_com_texto(800, 600, (0, 0, 0), "imagem_com_texto.png", legenda)
 
+                        try:
+                            cl.photo_upload(imagem, legenda)
+                            fotos_postadas += 1
+                            
+                            
+                        except Exception as e:
+                            return render(request, 'painel_web/bot_form.html', {'form': form, 'error': f"Erro ao compartilhar a foto: {e}", 'fotos_postadas': fotos_postadas})\
+                        
+                        # render(request, 'painel_web/bot_form.html', {'form': form, 'message': f"Fotos postadas: {fotos_postadas}", 'fotos_postadas': fotos_postadas})
+
+                        if(intervalo_tempo):
+                            time.sleep(intervalo_tempo)
+                        else:
+                            time.sleep(300)
+            except KeyboardInterrupt:# Permite que o loop seja interrompido manualmente
+                pass                 
+
+            
             try:
                 cl.photo_upload(imagem, caption=legenda)
                 fotos_postadas += 1
