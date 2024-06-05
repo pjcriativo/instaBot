@@ -5,11 +5,7 @@ from instagrapi import Client
 import openai
 from PIL import Image, ImageDraw, ImageFont
 from .forms import BotForm
-
-# Variáveis globais para controlar o loop do bot
-bot_running = False
-bot_thread = None
-fotos_postadas = 0
+import threading 
 
 def home_view(request):
     return render(request, 'painel_web/home.html')
