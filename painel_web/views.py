@@ -5,7 +5,7 @@ from instagrapi import Client
 import openai
 from PIL import Image, ImageDraw, ImageFont
 from .forms import BotForm
-import threading 
+ 
 
 def home_view(request):
     return render(request, 'painel_web/home.html')
